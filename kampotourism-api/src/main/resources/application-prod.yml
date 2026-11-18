@@ -1,0 +1,60 @@
+# Production profile (SPRING_PROFILES_ACTIVE=prod). Every secret comes from the environment;
+# nothing here has a usable default, so a missing variable fails startup instead of
+# silently falling back to a development value.
+spring:
+  datasource:
+    # Neon: jdbc:postgresql://<host>/<db>?sslmode=verify-full&sslfactory=org.postgresql.ssl.DefaultJavaSSLFactory
+    # Credentials go in DB_USER / DB_PASSWORD, never inside the URL (Flyway logs the URL).
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      # Small pool: Render Free has 512 MB / 0.1 CPU and Neon Free limits connections.
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:5}
+      # 0 idle connections + no keepalive lets Neon Free suspend its compute when the API is
+      # quiet (saving free compute hours); the first query afterwards reconnects.
+      minimum-idle: ${DB_POOL_MIN_IDLE:0}
+      keepalive-time: 0
+      idle-timeout: 120000
+      # Recycle before Neon drops connections when its compute suspends.
+      max-lifetime: 300000
+      # Neon may need a few seconds to wake a suspended compute.
+      connection-timeout: 30000
+  flyway:
+    enabled: true
+    clean-disabled: true        # never allow flyway:clean against production
+    validate-on-migrate: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  main:
+    banner-mode: off
+
+server:
+  forward-headers-strategy: framework
+  tomcat:
+    threads:
+      max: ${SERVER_MAX_THREADS:40}   # fewer threads = less memory on a 512 MB instance
+      min-spare: 2
+  error:
+    include-stacktrace: never
+    include-message: never
+
+app:
+  cors:
+    # Comma-separated exact origins, e.g. https://kampotourism.example,https://admin.kampotourism.example
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  media:
+    storage: ${MEDIA_STORAGE:cloudinary}
+    dir: ${MEDIA_DIR:/tmp/kampotourism-media}
+    # Only used with MEDIA_STORAGE=local. Render sets RENDER_EXTERNAL_URL automatically.
+    public-base-url: ${PUBLIC_BASE_URL:${RENDER_EXTERNAL_URL:}}
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    com.zaxxer.hikari: INFO
+    com.kampotourism: INFO

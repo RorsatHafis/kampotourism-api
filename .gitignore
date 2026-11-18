@@ -1,0 +1,13 @@
+# IDE files (.idea/dataSources* can contain database connection details)
+.idea/
+*.iml
+.vscode/
+
+# Build output and local runtime files
+target/
+uploads/
+
+# Secrets: never commit environment files (the documented template is allowed)
+.env
+.env.*
+!.env.example

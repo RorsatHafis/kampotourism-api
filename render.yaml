@@ -1,0 +1,50 @@
+# Render Blueprint: one FREE Docker web service. No databases, disks or paid add-ons are
+# declared here (PostgreSQL is Neon Free, images are Cloudinary Free).
+# Values marked `sync: false` are secrets: Render asks for them when the Blueprint is
+# created and they are never stored in this file.
+services:
+  - type: web
+    name: kampotourism-api
+    runtime: docker
+    plan: free                     # $0 instance; do not change
+    region: singapore              # create the Neon project in AWS ap-southeast-1 (Singapore) too
+    dockerContext: ./kampotourism-api
+    dockerfilePath: ./kampotourism-api/Dockerfile
+    # Liveness does not touch the database, so Render's health checks never keep Neon awake.
+    healthCheckPath: /actuator/health/liveness
+    buildFilter:
+      paths:
+        - kampotourism-api/**
+      ignoredPaths:
+        - kampotourism-api/**/*.md
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # --- Neon PostgreSQL (direct, non-pooled endpoint) ---
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # --- Security ---
+      - key: JWT_SECRET
+        generateValue: true          # Render generates a random 256-bit base64 value
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      # --- CORS: comma-separated exact frontend origins ---
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      # --- Media: Cloudinary Free ---
+      - key: MEDIA_STORAGE
+        value: cloudinary
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        value: kampotourism

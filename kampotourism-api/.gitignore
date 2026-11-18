@@ -1,0 +1,11 @@
+target/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+uploads/
+
+# Secrets: never commit real environment files. The documented template is kept.
+.env
+.env.*
+!.env.example

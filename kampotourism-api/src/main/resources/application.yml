@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: kampotourism-api
+  # Local development: put DB_PASSWORD, JWT_SECRET, ADMIN_* etc. in a git-ignored .env file
+  # next to pom.xml (see .env.example). Real environment variables always win over it.
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/kampotourism}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate   # Flyway owns the schema; Hibernate only checks it matches
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  jackson:
+    default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+server:
+  port: ${PORT:8080}   # Render (and most PaaS) inject PORT
+  compression:
+    enabled: true
+  shutdown: graceful
+  # Uncomment ONLY when running behind a trusted reverse proxy, so the real client IP
+  # (used by the login rate limiter) is read from X-Forwarded-For.
+  # forward-headers-strategy: framework
+
+app:
+  i18n:
+    default-lang: en
+    # Languages the API accepts. Content falls back to default-lang per record
+    # when a translation does not exist yet.
+    supported: [en, km, zh, ko, fr]
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://localhost:3000
+  security:
+    # REQUIRED, at least 32 bytes. Generate: openssl rand -base64 48
+    jwt-secret: ${JWT_SECRET:}
+    access-token-ttl: PT2H
+    issuer: kampotourism-api
+    # Creates the first ADMIN on startup, only if no admin exists yet.
+    bootstrap-admin:
+      email: ${ADMIN_EMAIL:}
+      password: ${ADMIN_PASSWORD:}
+  media:
+    # local = files on disk under dir (development only: Render's disk is wiped on every restart).
+    # cloudinary = files in Cloudinary (free plan); dir is then only used as a temporary scratch area.
+    storage: ${MEDIA_STORAGE:local}
+    dir: ${MEDIA_DIR:./uploads}
+    public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080}
+    cloudinary:
+      cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+      api-key: ${CLOUDINARY_API_KEY:}
+      api-secret: ${CLOUDINARY_API_SECRET:}
+      folder: ${CLOUDINARY_FOLDER:kampotourism}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /docs
+
+management:
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health

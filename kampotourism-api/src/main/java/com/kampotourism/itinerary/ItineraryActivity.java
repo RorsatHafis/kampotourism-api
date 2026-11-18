@@ -1,0 +1,3 @@
+package com.kampotourism.itinerary;
+import jakarta.persistence.*;
+@Entity @Table(name="itinerary_activity") public class ItineraryActivity { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @Column(nullable=false) private Long dayId; private int sortOrder; private Long destinationId; private Long experienceId; protected ItineraryActivity(){} ItineraryActivity(Long dayId,int sortOrder,Long destinationId,Long experienceId){this.dayId=dayId;this.sortOrder=sortOrder;this.destinationId=destinationId;this.experienceId=experienceId;} public Long getId(){return id;} public Long getDayId(){return dayId;} public int getSortOrder(){return sortOrder;} public Long getDestinationId(){return destinationId;} public Long getExperienceId(){return experienceId;} }

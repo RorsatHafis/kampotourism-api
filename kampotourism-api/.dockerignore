@@ -1,0 +1,15 @@
+# Keep the build context small and never ship local secrets or uploads into the image.
+.env
+.env.*
+!.env.example
+target/
+uploads/
+.idea/
+.vscode/
+*.iml
+.git/
+.gitignore
+.dockerignore
+docker-compose.yml
+Dockerfile
+*.md

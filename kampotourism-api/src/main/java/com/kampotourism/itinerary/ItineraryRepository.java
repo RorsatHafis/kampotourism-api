@@ -1,0 +1,3 @@
+package com.kampotourism.itinerary;
+import com.kampotourism.content.ContentStatus; import java.util.*; import org.springframework.data.domain.Page; import org.springframework.data.domain.Pageable; import org.springframework.data.jpa.repository.*;
+public interface ItineraryRepository extends JpaRepository<Itinerary,Long>{ Optional<Itinerary> findBySlugAndStatus(String slug,ContentStatus status); boolean existsBySlug(String slug); boolean existsBySlugAndIdNot(String slug,Long id); Page<Itinerary> findByStatus(ContentStatus status, Pageable pageable); Page<Itinerary> findByStatusAndFeatured(ContentStatus status, boolean featured, Pageable pageable); }
